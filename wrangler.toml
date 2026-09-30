@@ -1,47 +1,20 @@
 name = "planetary-max"
 main = "src/index.ts"
 compatibility_date = "2024-09-01"
-compatibility_flags = ["nodejs_compat"]
 
-# Phase‑12 strict mode
-workers_dev = true
-
-# Durable Objects
-[durable_objects]
-bindings = [
-  { name = "IDENTITY_SESSION_DO", class_name = "IdentitySessionDO" },
-  { name = "UMBRELLA_LIVE", class_name = "UmbrellaLiveDO" },
-  { name = "SIM_LIVE", class_name = "SimLiveDO" },
-  { name = "KERNEL_EVENTS", class_name = "KernelEventsDO" },
-  { name = "KERNEL_TIMELINE", class_name = "KernelTimelineDO" },
-  { name = "WINDOW_LAYOUT", class_name = "WindowLayoutDO" },
-  { name = "PLANETARY_MODE", class_name = "PlanetaryModeDO" },
-  { name = "PHASE11_DO", class_name = "Phase11DO" },
-  { name = "MAXOS_VERSION", class_name = "MaxOSVersionDO" },
-  { name = "SYSTEM_STATE", class_name = "SystemStateDO" }
-]
-
-# D1 databases
-[d1_databases]
-bindings = [
-  { name = "IDENTITY_DB", database_id = "identity-db" },
-  { name = "UMBRELLA_DB", database_id = "umbrella-db" },
-  { name = "SIM_DB", database_id = "sim-db" },
-  { name = "KERNEL_DB", database_id = "kernel-db" },
-  { name = "WINDOWS_DB", database_id = "windows-db" },
-  { name = "PLANETARY_DB", database_id = "planetary-db" },
-  { name = "PHASE11_DB", database_id = "phase11-db" },
-  { name = "VERSION_DB", database_id = "version-db" },
-  { name = "STATE_DB", database_id = "state-db" }
-]
-
-# Environment variables
 [vars]
-IDENTITY_JWT_ISSUER = "max-os-1"
-IDENTITY_JWT_AUDIENCE = "portal-os"
-IDENTITY_JWT_SECRET = "REPLACE_ME"
+PLANETARY_MODE = "single"
+UMBRELLA_ENFORCEMENT = "strict"
+IDENTITY_JWT_ISSUER = "portal-login"
+IDENTITY_JWT_AUDIENCE = "planetary-max"
 
-# Routes (optional if using workers.dev)
-routes = [
-  { pattern = "planetary-max.maxchaz1.workers.dev/*", zone_id = "REPLACE_ZONE" }
-]
+[[durable_objects.bindings]]
+name = "PORTAL_KERNEL"
+class_name = "PortalKernel"
+
+[build]
+command = "npm run build"
+
+[[services]]
+binding = "MAX_OS_1"
+service = "max-os-1"
