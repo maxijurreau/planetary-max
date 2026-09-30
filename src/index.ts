@@ -1,71 +1,33 @@
 // src/index.ts
-// Portal‑OS v11 — Worker Router
+// Portal-OS Phase-12 — Worker Router
 
 import { Hono } from "hono";
 import { kernelStub } from "./kernel/stub";
 
 const api = new Hono();
 
-// ------------------------------------------------------------
-// Timeline Route
-// ------------------------------------------------------------
-api.post("/portal/timeline", async (c) => {
-  const body = await c.req.json();
-
-  const stub = kernelStub(c.env);
-  const res = await stub.fetch(
-    new Request("https://portal/api/portal/timeline", {
-      method: "POST",
-      body: JSON.stringify({
-        id: crypto.randomUUID(),
-        lane: "portal:timeline",
-        payload: body,
-        identity: "introspection",
-      }),
-    })
-  );
-
-  return c.json(await res.json());
+// ============================================================
+// Health check
+// ============================================================
+api.get("/health", (c) => {
+  return c.json({ ok: true, phase: "12" });
 });
 
-// ------------------------------------------------------------
-// Replay Route
-// ------------------------------------------------------------
-api.post("/portal/replay", async (c) => {
+// ============================================================
+// Portal-OS Kernel Message Bridge
+// Routes all requests to the single PortalKernel DO
+// ============================================================
+api.post("/api", async (c) => {
   const body = await c.req.json();
-
   const stub = kernelStub(c.env);
+  
+  // Route based on lane
+  const lane = body.lane || "unknown";
   const res = await stub.fetch(
-    new Request("https://portal/api/portal/replay", {
+    new Request(`https://portal-kernel/${lane}`, {
       method: "POST",
-      body: JSON.stringify({
-        id: crypto.randomUUID(),
-        lane: "portal:replay",
-        payload: body,
-        identity: "introspection",
-      }),
-    })
-  );
-
-  return c.json(await res.json());
-});
-
-// ------------------------------------------------------------
-// Canon Route
-// ------------------------------------------------------------
-api.post("/portal/canon", async (c) => {
-  const body = await c.req.json();
-
-  const stub = kernelStub(c.env);
-  const res = await stub.fetch(
-    new Request("https://portal/api/portal/canon", {
-      method: "POST",
-      body: JSON.stringify({
-        id: crypto.randomUUID(),
-        lane: "portal:canon",
-        payload: body,
-        identity: "introspection",
-      }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
     })
   );
 
@@ -74,5 +36,3 @@ api.post("/portal/canon", async (c) => {
 
 export default api;
 export { PortalKernel } from "./do/PortalKernel";
-export { new_sqlite_classes } from "./do/new_sqlite_classes";
-
